@@ -103,7 +103,7 @@ def main():
         try:
             client.upload(module.params['dest_filename'], io.StringIO(to_text(module.params['src'])))
             responses.append('TFTP client uploaded to %s' % to_native(module.params['dest_filename']))
-            result['changed'] = True
+            result['changed'] = False
         except Exception as err:
             module.fail_json(msg='TFTP upload failed: %s' % to_native(err), **result)
     except Exception as err:
