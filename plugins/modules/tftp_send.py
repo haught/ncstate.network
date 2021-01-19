@@ -69,9 +69,9 @@ stdout_lines:
 from tftpy import TftpClient
 import io
 
-from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.module_utils._text import to_native, to_text
 from ansible.module_utils.basic import AnsibleModule
+
 
 def main():
     spec = dict(
