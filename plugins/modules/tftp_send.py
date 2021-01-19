@@ -36,7 +36,7 @@ options:
       - The destination filename.
     required: True
     type: str
-  blocksize
+  blocksize:
     description:
       - TFTP transfer blocksize.
     required: False
