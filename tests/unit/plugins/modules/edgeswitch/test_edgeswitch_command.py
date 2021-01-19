@@ -22,7 +22,7 @@ __metaclass__ = type
 import json
 
 from ansible_collections.community.network.tests.unit.compat.mock import patch
-from ansible_collections.community.network.plugins.modules.network.edgeswitch import edgeswitch_command
+from ansible_collections.ncstate.network.plugins.modules.edgeswitch import edgeswitch_command
 from ansible_collections.community.network.tests.unit.plugins.modules.utils import set_module_args
 from ansible_collections.community.network.tests.unit.plugins.modules.network.edgeswitch.edgeswitch_module import TestEdgeswitchModule, load_fixture
 
