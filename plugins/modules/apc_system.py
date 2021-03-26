@@ -14,9 +14,9 @@ author: "Matt Haught (@haught)"
 short_description: Manage system configuration on APC devices.
 description:
   - This module provides declarative management of APC system
-    on APC UPS systems.
+    on APC UPS NMC systems.
 notes:
-  - Tested against Smart-UPS SRT 1500 with APC OS v6.8.2
+  - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
 options:
   name:
     description:

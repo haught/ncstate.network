@@ -10,12 +10,15 @@ module: apc_command
 author: "Matt Haught (@haught)"
 short_description: Run commands on remote devices running APC OS
 description:
-  - Sends arbitrary commands to an APC UPS and returns the results
+  - Sends arbitrary commands to an APC UPS NMC and returns the results
     read from the device. This module includes an
     argument that will cause the module to wait for a specific condition
     before returning or timing out if the condition is not met.
 notes:
-  - Tested against Smart-UPS SRT 1500 with APC OS v6.8.2
+  - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansible
 options:
   commands:
     description:
@@ -82,7 +85,7 @@ tasks:
         - dns
       wait_for:
         - result[0] contains UPS01
-        - result[1] contains ups01
+        - result[1] contains example.net
 
   - name: Run command that requires answering a prompt
     ncstate.network.apc_command:
