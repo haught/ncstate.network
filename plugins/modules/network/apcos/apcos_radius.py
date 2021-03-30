@@ -104,33 +104,42 @@ def build_commands(module):
     commands = []
     config = parse_config(get_config(module, source=SOURCE))
     if module.params['access']:
-        if config['access'] != module.params['access']:
-            commands.append(SOURCE + ' -a ' + module.params['access'])
-    if module.params['primaryserver']:
-        if config['primaryserver'] != module.params['primaryserver']:
-            commands.append(SOURCE + ' -p1 ' + module.params['primaryserver'])
+        if module.params['access'] == 'local':
+            if config['access'] != 'Local Only':
+                commands.append(SOURCE + ' -a ' + module.params['access'])
+        elif module.params['access'] == 'radiuslocal':
+            if config['access'] != 'RADIUS, then Local':
+                commands.append(SOURCE + ' -a ' + module.params['access'])
+        elif module.params['access'] == 'radius':
+            if config['access'] != 'RADIUS Only':
+                commands.append(SOURCE + ' -a ' + module.params['access'])
+    if module.params['primaryserver'] or module.params['forcepwchange'] is True:
+        if module.params['primaryserver']:
+            if config['primaryserver'] != module.params['primaryserver']:
+                commands.append(SOURCE + ' -p1 ' + module.params['primaryserver'])
         if config['primaryserver'] != module.params['primaryserver'] or module.params['forcepwchange'] is True:
             if module.params['primarysecret']:
                 if config['primaryserversecret'] != module.params['primarysecret']:
                     commands.append(SOURCE + ' -s1 ' + module.params['primarysecret'])
     if module.params['primaryport']:
-        if config['primaryserverport'] != module.params['primaryport']:
+        if config['primaryserverport'] != str(module.params['primaryport']):
             commands.append(SOURCE + ' -o1 ' + str(module.params['primaryport']))
     if module.params['primarytimeout']:
-        if config['primaryservertimeout'] != module.params['primarytimeout']:
+        if config['primaryservertimeout'] != str(module.params['primarytimeout']):
             commands.append(SOURCE + ' -t1 ' + str(module.params['primarytimeout']))
-    if module.params['secondaryserver']:
-        if config['secondaryserver'] != module.params['secondaryserver']:
-            commands.append(SOURCE + ' -p2 ' + module.params['secondaryserver'])
+    if module.params['secondaryserver'] or module.params['forcepwchange'] is True:
+        if module.params['secondaryserver']:
+            if config['secondaryserver'] != module.params['secondaryserver']:
+                commands.append(SOURCE + ' -p2 ' + module.params['secondaryserver'])
         if config['secondaryserver'] != module.params['secondaryserver'] or module.params['forcepwchange'] is True:
             if module.params['secondarysecret']:
                 if config['secondaryserversecret'] != module.params['secondarysecret']:
                     commands.append(SOURCE + ' -s2 ' + module.params['secondarysecret'])
     if module.params['secondaryport']:
-        if config['secondaryserverport'] != module.params['secondaryport']:
+        if config['secondaryserverport'] != str(module.params['secondaryport']):
             commands.append(SOURCE + ' -o2 ' + str(module.params['secondaryport']))
     if module.params['secondarytimeout']:
-        if config['secondaryservertimeout'] != module.params['secondarytimeout']:
+        if config['secondaryservertimeout'] != str(module.params['secondarytimeout']):
             commands.append(SOURCE + ' -t2 ' + str(module.params['secondarytimeout']))
     return commands
 
