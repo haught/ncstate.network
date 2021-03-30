@@ -73,11 +73,11 @@ notes:
 EXAMPLES = """
 tasks:
   - name: Reboot the device
-    community.network.edgeswitch_command:
+    ncstate.network.edgeswitch_command:
       commands: reload now
 
   - name: Show the configuration for eth0 and eth1
-    community.network.edgeswitch_command:
+    ncstate.network.edgeswitch_command:
       commands: show interfaces switchport {{ item }}
     loop:
       - 0/1

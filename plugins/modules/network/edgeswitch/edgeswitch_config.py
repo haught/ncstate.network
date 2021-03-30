@@ -185,23 +185,23 @@ notes:
 
 EXAMPLES = """
 - name: Configure top level configuration
-  community.network.edgeswitch_config:
+  ncstate.network.edgeswitch_config:
     lines: domain-name example.net
 
 - name: Diff the running-config against a provided config
-  community.network.edgeswitch_config:
+  ncstate.network.edgeswitch_config:
     diff_against: intended
     intended_config: "{{ lookup('file', 'master.cfg') }}"
 
 - name: Configure interface settings
-  community.network.edgeswitch_config:
+  ncstate.network.edgeswitch_config:
     lines:
       - description test interface
       - ip access-group EXAMPLE in
     parents: interface 0/1
 
 - name: Load new acl into device
-  community.network.edgeswitch_config:
+  ncstate.network.edgeswitch_config:
     lines:
       - deny tcp 10.0.1.0 0.0.255.255 host 10.10.10.10 eq 443
       - permit ip any any
@@ -210,7 +210,7 @@ EXAMPLES = """
     match: exact
 
 - name: Configurable backup path
-  community.network.edgeswitch_config:
+  ncstate.network.edgeswitch_config:
     backup: yes
     lines: domain-name example.net
     backup_options:
