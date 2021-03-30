@@ -49,7 +49,7 @@ tasks:
   - name: Send tftp file
     ncstate.network.tftp_send:
       host: 1.2.3.4
-      src: {{ string }}
+      src: "{{ string }}"
       dest_filename: '/dest/file.txt'
 """
 

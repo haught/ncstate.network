@@ -21,9 +21,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 from ansible_collections.community.network.tests.unit.compat.mock import patch
-from ansible_collections.community.network.plugins.modules.network.edgeswitch import edgeswitch_config
+from ansible_collections.ncstate.network.plugins.modules.network.edgeswitch import edgeswitch_config
 from ansible_collections.community.network.tests.unit.plugins.modules.utils import set_module_args
-from .edgeswitch_module import TestEdgeswitchModule, load_fixture
+from ansible_collections.community.network.tests.unit.plugins.modules.network.edgeswitch.edgeswitch_module import TestEdgeswitchModule, load_fixture
 
 
 class TestEdgeswitchConfigModule(TestEdgeswitchModule):
@@ -33,13 +33,13 @@ class TestEdgeswitchConfigModule(TestEdgeswitchModule):
     def setUp(self):
         super(TestEdgeswitchConfigModule, self).setUp()
 
-        self.mock_get_config = patch('ansible_collections.community.network.plugins.modules.network.edgeswitch.edgeswitch_config.get_config')
+        self.mock_get_config = patch('ansible_collections.ncstate.network.plugins.modules.network.edgeswitch.edgeswitch_config.get_config')
         self.get_config = self.mock_get_config.start()
 
-        self.mock_load_config = patch('ansible_collections.community.network.plugins.modules.network.edgeswitch.edgeswitch_config.load_config')
+        self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.edgeswitch.edgeswitch_config.load_config')
         self.load_config = self.mock_load_config.start()
 
-        self.mock_run_commands = patch('ansible_collections.community.network.plugins.modules.network.edgeswitch.edgeswitch_config.run_commands')
+        self.mock_run_commands = patch('ansible_collections.ncstate.network.plugins.modules.network.edgeswitch.edgeswitch_config.run_commands')
         self.run_commands = self.mock_run_commands.start()
 
     def tearDown(self):

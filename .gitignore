@@ -400,3 +400,8 @@ $RECYCLE.BIN/
 .DS_Store
 
 # End of https://www.gitignore.io/api/git,linux,pydev,python,windows,pycharm+all,jupyternotebook,vim,webstorm,emacs,dotenv
+
+*.gz
+
+venv
+.venv

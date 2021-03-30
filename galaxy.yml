@@ -1,6 +1,6 @@
 namespace: ncstate
 name: network
-version: 1.0.0
+version: 1.0.1
 readme: README.md
 authors:
   - Matt Haught <dmhaught@ncsu.edu>
