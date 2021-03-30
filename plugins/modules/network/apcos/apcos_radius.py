@@ -9,14 +9,17 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: apc_radius
+module: apcos_radius
 author: "Matt Haught (@haught)"
-short_description: Manage radius configuration on APC devices.
+short_description: Manage radius configuration on APC OS devices.
 description:
   - This module provides declarative management of APC radius
-    on APC UPS NMC systems.
+    configuration on APC UPS NMC systems.
 notes:
   - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansible
 options:
   access:
     description:
@@ -32,7 +35,7 @@ options:
   primaryport:
     description:
       - Primary radius server port.
-    type: str
+    type: int
   primarysecret:
     description:
       - Primary radius authentication shared secret.
@@ -40,7 +43,7 @@ options:
   primarytimeout:
     description:
       - Primary radius authentication timeout.
-    type: str
+    type: int
   secondaryserver:
     description:
       - Secondary radius server ip.
@@ -48,7 +51,7 @@ options:
   secondaryport:
     description:
       - Secondary radius server port.
-    type: str
+    type: int
   secondarysecret:
     description:
       - Secondary radius authentication shared secret.
@@ -56,20 +59,21 @@ options:
   secondarytimeout:
     description:
       - Secondary radius authentication timeout.
-    type: str
+    type: int
   forcepwchange:
     description:
       - Force a password change
     type: bool
+    default: False
 '''
 
 EXAMPLES = """
 - name: Set radius name
-  ncstate.network.apc_radius:
+  ncstate.network.apcos_radius:
     primaryip: "10.1.1.1"
 
 - name: Set two radius settings
-  ncstate.network.apc_radius:
+  ncstate.network.apcos_radius:
     primaryip: "10.1.1.1"
     secondaryip: "10.4.4.4"
 """
@@ -86,7 +90,7 @@ import re
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import (
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
@@ -94,6 +98,7 @@ from ansible_collections.ncstate.network.plugins.module_utils.network.apc import
 )
 
 SOURCE = "radius"
+
 
 def build_commands(module):
     commands = []
@@ -104,7 +109,7 @@ def build_commands(module):
     if module.params['primaryserver']:
         if config['primaryserver'] != module.params['primaryserver']:
             commands.append(SOURCE + ' -p1 ' + module.params['primaryserver'])
-        if config['primaryserver'] != module.params['primaryserver'] or module.params['forcepwchange'] == True:
+        if config['primaryserver'] != module.params['primaryserver'] or module.params['forcepwchange'] is True:
             if module.params['primarysecret']:
                 if config['primaryserversecret'] != module.params['primarysecret']:
                     commands.append(SOURCE + ' -s1 ' + module.params['primarysecret'])
@@ -117,7 +122,7 @@ def build_commands(module):
     if module.params['secondaryserver']:
         if config['secondaryserver'] != module.params['secondaryserver']:
             commands.append(SOURCE + ' -p2 ' + module.params['secondaryserver'])
-        if config['secondaryserver'] != module.params['secondaryserver'] or module.params['forcepwchange'] == True:
+        if config['secondaryserver'] != module.params['secondaryserver'] or module.params['forcepwchange'] is True:
             if module.params['secondarysecret']:
                 if config['secondaryserversecret'] != module.params['secondarysecret']:
                     commands.append(SOURCE + ' -s2 ' + module.params['secondarysecret'])
@@ -128,6 +133,7 @@ def build_commands(module):
         if config['secondaryservertimeout'] != module.params['secondarytimeout']:
             commands.append(SOURCE + ' -t2 ' + str(module.params['secondarytimeout']))
     return commands
+
 
 def main():
     """ main entry point for module execution
@@ -142,14 +148,15 @@ def main():
         secondaryport=dict(type='int'),
         secondarysecret=dict(type='str'),
         secondarytimeout=dict(type='int'),
-        forcepwchange=dict(type=bool, default=False)
+        forcepwchange=dict(type='bool', default=False)
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True
+    )
 
     warnings = list()
-    #warnings = json.dumps(build_commands(module))
 
     result = {'changed': False}
 

@@ -6,7 +6,7 @@
 from __future__ import (absolute_import, division, print_function)
 DOCUMENTATION = '''
 ---
-module: apc_command
+module: apcos_command
 author: "Matt Haught (@haught)"
 short_description: Run commands on remote devices running APC OS
 description:
@@ -69,17 +69,17 @@ options:
 EXAMPLES = """
 tasks:
   - name: Run system on remote devices
-    ncstate.network.apc_command:
+    ncstate.network.apcos_command:
       commands: system
 
   - name: Run multiple commands on remote nodes
-    ncstate.network.apc_command:
+    ncstate.network.apcos_command:
       commands:
         - system
         - dns
 
   - name: Run multiple commands and evaluate the output
-    ncstate.network.apc_command:
+    ncstate.network.apcos_command:
       commands:
         - system
         - dns
@@ -88,7 +88,7 @@ tasks:
         - result[1] contains example.net
 
   - name: Run command that requires answering a prompt
-    ncstate.network.apc_command:
+    ncstate.network.apcos_command:
       commands:
         - command: 'reboot'
           prompt: "Enter 'YES' to continue or <ENTER> to cancel"
@@ -115,7 +115,7 @@ failed_conditions:
 import re
 import time
 
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import run_commands
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import run_commands
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import ComplexList
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.parsing import Conditional
@@ -165,8 +165,10 @@ def main():
         interval=dict(default=1, type='int')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True
+    )
 
     result = {'changed': False}
 

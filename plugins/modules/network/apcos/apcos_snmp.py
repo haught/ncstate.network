@@ -9,14 +9,17 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: apc_snmpv3
+module: apcos_snmp
 author: "Matt Haught (@haught)"
-short_description: Manage snmpv3 configuration on APC devices.
+short_description: Manage snmp configuration on APC OS devices.
 description:
-  - This module provides declarative management of APC snmpv3
-    on APC UPS NMC systems.
+  - This module provides declarative management of APC snmp
+    configuration on APC UPS NMC systems.
 notes:
   - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansible
 options:
   enable:
     description:
@@ -25,7 +28,7 @@ options:
   index:
     description:
       - Index of SNMPv1 user.
-    type: str
+    type: int
     choices: [1, 2, 3, 4]
   community:
     description:
@@ -33,17 +36,18 @@ options:
     type: str
   accesstype:
     description:
-      - SNMPv3 access enable for index.
-    type: bool
+      - SNMP access enable for index.
+    type: str
     choices: ['disabled', 'read', 'write', 'writeplus']
   accessaddress:
     description:
       - SNMPv1 NMS IP/CIDR address for index.
+    type: str
 '''
 
 EXAMPLES = """
-- name: Set snmpv3 name
-  ncstate.network.apc_snmp:
+- name: Set snmp name
+  ncstate.network.apcos_snmp:
     index: 1
     community: "public"
     accesstype: "read"
@@ -61,7 +65,7 @@ import re
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import (
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
@@ -70,26 +74,32 @@ from ansible_collections.ncstate.network.plugins.module_utils.network.apc import
 
 SOURCE = "snmp"
 
+
 def build_commands(module):
     commands = []
     config = {}
-    config['config'] = parse_config(get_config(module, source=SOURCE))
-    config['access'] = parse_config_section(get_config(module, source=SOURCE), 'Access Control Summary:', module.params['index'], 'Access Control #')
-    if module.params['enable']:
-        if config['config']['snmpv1'] == "disabled" and module.params['enable'] == True:
+    config['config'] = parse_config(config=get_config(module, source=SOURCE))
+    config['access'] = parse_config_section(
+        config=get_config(module, source=SOURCE),
+        section='Access Control Summary:',
+        index=module.params['index'],
+        indexName='Access Control #')
+    if module.params['enable'] is not None:
+        if config['config']['snmpv1'].lower() == "disabled" and module.params['enable'] is True:
             commands.append(SOURCE + ' -S enable')
-        elif config['config']['snmpv1'] == "enabled" and module.params['enable'] == False:
+        elif config['config']['snmpv1'].lower() == "enabled" and module.params['enable'] is False:
             commands.append(SOURCE + ' -S disable')
     if module.params['community'] and module.params['index']:
         if config['access']['community'] != module.params['community']:
-            commands.append(SOURCE + ' -c' + str(module.params['index']) + ' '  + module.params['community'])
+            commands.append(SOURCE + ' -c' + str(module.params['index']) + ' ' + module.params['community'])
     if module.params['accesstype'] and module.params['index']:
         if config['access']['accesstype'] != module.params['accesstype']:
-            commands.append(SOURCE + ' -a' + str(module.params['index']) + ' '  + module.params['accesstype'])
+            commands.append(SOURCE + ' -a' + str(module.params['index']) + ' ' + module.params['accesstype'])
     if module.params['accessaddress'] and module.params['index']:
         if config['access']['address'] != module.params['accessaddress']:
-            commands.append(SOURCE + ' -n' + str(module.params['index']) + ' '  + module.params['accessaddress'])
+            commands.append(SOURCE + ' -n' + str(module.params['index']) + ' ' + module.params['accessaddress'])
     return commands
+
 
 def main():
     """ main entry point for module execution
@@ -102,16 +112,17 @@ def main():
         accessaddress=dict(type='str')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           required_by={
-                             'community': 'index',
-                             'accesstype': 'index',
-                             'accessaddress': 'index',
-                           },
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        required_by={
+            'community': 'index',
+            'accesstype': 'index',
+            'accessaddress': 'index',
+        },
+        supports_check_mode=True
+    )
 
     warnings = list()
-    #warnings = json.dumps(build_commands(module))
 
     result = {'changed': False}
 
@@ -120,8 +131,6 @@ def main():
 
     commands = []
     commands = build_commands(module)
-    #result['debug'] = parse_config(get_config(module, source=SOURCE))
-    #result['debug2'] = parse_config_section(get_config(module, source=SOURCE), 'Access Control Summary:', 1, "Access Control #")
 
     result['commands'] = commands
 

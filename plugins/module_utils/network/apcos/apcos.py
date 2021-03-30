@@ -51,17 +51,17 @@ def get_connection(module):
     Raises:
         AnsibleConnectionFailure: An error occurred connecting to the device
     """
-    if hasattr(module, 'apc_connection'):
-        return module.apc_connection
+    if hasattr(module, 'apcos_connection'):
+        return module.apcos_connection
 
     capabilities = get_capabilities(module)
     network_api = capabilities.get('network_api')
     if network_api == 'cliconf':
-        module.apc_connection = Connection(module._socket_path)
+        module.apcos_connection = Connection(module._socket_path)
     else:
         module.fail_json(msg='Invalid connection type %s' % network_api)
 
-    return module.apc_connection
+    return module.apcos_connection
 
 
 def get_capabilities(module):
@@ -75,12 +75,12 @@ def get_capabilities(module):
     Returns:
         A dictionary containing the switch capabilities.
     """
-    if hasattr(module, 'apc_capabilities'):
-        return module.apc_capabilities
+    if hasattr(module, 'apcos_capabilities'):
+        return module.apcos_capabilities
 
     capabilities = Connection(module._socket_path).get_capabilities()
-    module.apc_capabilities = json.loads(capabilities)
-    return module.apc_capabilities
+    module.apcos_capabilities = json.loads(capabilities)
+    return module.apcos_capabilities
 
 
 def run_commands(module, commands):
@@ -175,6 +175,7 @@ def parse_config(config):
 
 def parse_config_section(config, section, index=None, indexName="Index"):
     found_section = False
+    found_index = None
     section_values = []
     for line in config.split('\n'):
         if found_section == True:
@@ -187,7 +188,7 @@ def parse_config_section(config, section, index=None, indexName="Index"):
     subsection = {}
     for line in section_values:
         if index is not None:
-            index_search = re.match(rf'\s+?{indexName}:\s+(.+)', line)
+            index_search = re.match(r'\s+?' + indexName + r':\s+(.+)', line)
             if hasattr(index_search, 'group'):
                 found_index = int(index_search.group(1))
                 subsection[found_index] = []
@@ -196,5 +197,6 @@ def parse_config_section(config, section, index=None, indexName="Index"):
     if index is not None:
         for key in subsection:
             subsection[key] = parse_config("\n".join(subsection[key]))
-        return subsection[index]
+        if index in subsection.keys():
+            return subsection[index]
     return parse_config("\n".join(section_values))

@@ -9,14 +9,17 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: apc_system
+module: apcos_system
 author: "Matt Haught (@haught)"
-short_description: Manage system configuration on APC devices.
+short_description: Manage system configuration on APC OS devices.
 description:
-  - This module provides declarative management of APC system
-    on APC UPS NMC systems.
+  - This module provides declarative management of APC OS system
+    configuration on APC UPS NMC systems.
 notes:
   - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansible
 options:
   name:
     description:
@@ -30,7 +33,7 @@ options:
     description:
       - Location of device.
     type: str
-  message:
+  motd:
     description:
       - Show a custom message on the logon page of the web UI or the CLI.
     type: str
@@ -38,17 +41,18 @@ options:
     description:
       - Synchronize the system and the hostname.
     type: bool
+    default: False
 '''
 
 EXAMPLES = """
 - name: Set system name
-  ncstate.network.apc_system:
+  ncstate.network.apcos_system:
     name: "device01"
 
 - name: Set two system settings
-  ncstate.network.apc_system:
+  ncstate.network.apcos_system:
     name: "device01"
-    location: "Bldg 101"
+    location: "Bldg-101"
 """
 
 RETURN = """
@@ -63,13 +67,14 @@ import re
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import (
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
 )
 
 SOURCE = "system"
+
 
 def build_commands(module):
     commands = []
@@ -83,15 +88,16 @@ def build_commands(module):
     if module.params['location']:
         if config['location'] != module.params['location']:
             commands.append(SOURCE + ' -l ' + module.params['location'])
-    if module.params['message']:
-        if config['message'] != module.params['message']:
-            commands.append(SOURCE + ' -m ' + module.params['message'])
-    if module.params['hostnamesync']:
-        if config['hostnamesync'] == "Disabled" and module.params['hostnamesync'] == True:
+    if module.params['motd']:
+        if config['message'] != module.params['motd']:
+            commands.append(SOURCE + ' -m ' + module.params['motd'])
+    if module.params['hostnamesync'] is not None:
+        if config['hostnamesync'].lower() == "disabled" and module.params['hostnamesync'] is True:
             commands.append(SOURCE + ' -s enable')
-        elif config['hostnamesync'] == "Enabled" and module.params['hostnamesync'] == False:
+        elif config['hostnamesync'].lower() == "enabled" and module.params['hostnamesync'] is False:
             commands.append(SOURCE + ' -s disable')
     return commands
+
 
 def main():
     """ main entry point for module execution
@@ -100,12 +106,14 @@ def main():
         name=dict(type='str'),
         contact=dict(type='str'),
         location=dict(type='str'),
-        message=dict(type='str'),
+        motd=dict(type='str'),
         hostnamesync=dict(type='bool', default=False)
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True
+    )
 
     warnings = list()
 

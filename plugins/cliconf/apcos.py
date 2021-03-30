@@ -22,11 +22,11 @@ __metaclass__ = type
 DOCUMENTATION = '''
 ---
 author: Matt Haught (@haught)
-cliconf: apc
-short_description: Use apc cliconf to run command on Extreme SLX-OS platform
+cliconf: apcos
+short_description: Use apcos cliconf to run command on APC OS devices
 description:
-  - This apc plugin provides low level abstraction apis for
-    sending and receiving CLI commands from Extreme SLX-OS network devices.
+  - This apcos plugin provides low level abstraction apis for
+    sending and receiving CLI commands from APC OS devices.
 '''
 
 import re
@@ -45,7 +45,7 @@ class Cliconf(CliconfBase):
     def get_device_info(self):
         device_info = {}
 
-        device_info['network_os'] = 'apc'
+        device_info['network_os'] = 'apcos'
         reply = self.get('about')
         data = to_text(reply, errors='surrogate_or_strict').strip()
 

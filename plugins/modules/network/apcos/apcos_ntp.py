@@ -9,14 +9,17 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: apc_ntp
+module: apcos_ntp
 author: "Matt Haught (@haught)"
-short_description: Manage ntp configuration on APC devices.
+short_description: Manage ntp configuration on APC OS devices.
 description:
   - This module provides declarative management of APC ntp
-    on APC UPS NMC systems.
+    configuration on APC UPS NMC systems.
 notes:
   - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansibles
 options:
   enable:
     description:
@@ -38,11 +41,11 @@ options:
 
 EXAMPLES = """
 - name: Set ntp name
-  ncstate.network.apc_ntp:
+  ncstate.network.apcos_ntp:
     primaryip: "10.1.1.1"
 
 - name: Set two ntp settings
-  ncstate.network.apc_ntp:
+  ncstate.network.apcos_ntp:
     enable: True
     primaryip: "10.1.1.1"
     secondaryip: "10.4.4.4"
@@ -60,7 +63,7 @@ import re
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import (
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
@@ -69,14 +72,15 @@ from ansible_collections.ncstate.network.plugins.module_utils.network.apc import
 
 SOURCE = "ntp"
 
+
 def build_commands(module):
     commands = []
     commands = []
     config = parse_config(get_config(module, source=SOURCE))
-    if module.params['enable']:
-        if config['ntpstatus'] == "Disabled" and module.params['enable'] == True:
+    if module.params['enable'] is not None:
+        if config['ntpstatus'].lower() == "disabled" and module.params['enable'] is True:
             commands.append(SOURCE + ' -e enable')
-        elif config['ntpstatus'] == "Enabled" and module.params['enable'] == False:
+        elif config['ntpstatus'].lower() == "enabled" and module.params['enable'] is False:
             commands.append(SOURCE + ' -e disable')
     if module.params['primaryserver']:
         if config['primaryntpserver'] != module.params['primaryserver']:
@@ -84,12 +88,13 @@ def build_commands(module):
     if module.params['secondaryserver']:
         if config['secondaryntpserver'] != module.params['secondaryserver']:
             commands.append(SOURCE + ' -s ' + module.params['secondaryserver'])
-    if module.params['overridemanual']:
-        if config['overridemanualntpsettings'] == "disabled" and module.params['overridemanual'] == True:
+    if module.params['overridemanual'] is not None:
+        if config['overridemanualntpsettings'].lower() == "disabled" and module.params['overridemanual'] is True:
             commands.append(SOURCE + ' -OM enable')
-        elif config['overridemanualntpsettings'] == "enabled" and module.params['overridemanual'] == False:
+        elif config['overridemanualntpsettings'].lower() == "enabled" and module.params['overridemanual'] is False:
             commands.append(SOURCE + ' -OM disable')
     return commands
+
 
 def main():
     """ main entry point for module execution
@@ -98,11 +103,13 @@ def main():
         enable=dict(type='bool'),
         primaryserver=dict(type='str'),
         secondaryserver=dict(type='str'),
-        overridemanual=dict(type='bool', default=False)
+        overridemanual=dict(type='bool')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True
+    )
 
     warnings = list()
 

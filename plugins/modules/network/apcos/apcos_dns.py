@@ -9,22 +9,29 @@ __metaclass__ = type
 
 DOCUMENTATION = '''
 ---
-module: apc_dns
+module: apcos_dns
 author: "Matt Haught (@haught)"
-short_description: Manage dns configuration on APC devices.
+short_description: Manage dns configuration on APC OS devices.
 description:
-  - This module provides declarative management of APC dns
-    on APC UPS NMC systems.
+  - This module provides declarative management of APC UPS dns
+    configuration on APC OS NMC systems.
 notes:
   - Tested APC NMC v3 (AP9641) running APC OS v1.4.2.1
+  - APC NMC v2 cards running AOS <= v6.8.2 and APC
+    NMC v3 cards running AOS < v1.4.2.1 have a bug that
+    stalls output and will not work with ansible
 options:
-  primarydnsserver:
+  primaryserver:
     description:
       - Set the primary DNS server.
     type: str
-  secondarydnsserver:
+  secondaryserver:
     description:
       - Set the secondary DNS server.
+    type: str
+  hostname:
+    description:
+      - Set the host name
     type: str
   domainname:
     description:
@@ -38,7 +45,7 @@ options:
     description:
       - Synchronizes the system name and the hostname.
     type: bool
-  overridemanualdnssettings:
+  overridemanual:
     description:
       - Override the manual DNS.
     type: bool
@@ -46,11 +53,11 @@ options:
 
 EXAMPLES = """
 - name: Set dns name
-  ncstate.network.apc_dns:
+  ncstate.network.apcos_dns:
     primarydns: "1.1.1.1"
 
 - name: Set two dns settings
-  ncstate.network.apc_dns:
+  ncstate.network.apcos_dns:
     primarydns: "1.1.1.1"
     secondarydns: "4.4.4.4"
 """
@@ -67,7 +74,7 @@ import re
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
-from ansible_collections.ncstate.network.plugins.module_utils.network.apc import (
+from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
@@ -75,15 +82,16 @@ from ansible_collections.ncstate.network.plugins.module_utils.network.apc import
 
 SOURCE = "dns"
 
+
 def build_commands(module):
     commands = []
     config = parse_config(get_config(module, source=SOURCE))
-    if module.params['primarydnsserver']:
-        if config['primarydnsserver'] != module.params['primarydnsserver']:
-            commands.append(SOURCE + ' -p ' + module.params['primarydnsserver'])
-    if module.params['secondarydnsserver']:
-        if config['secondarydnsserver'] != module.params['secondarydnsserver']:
-            commands.append(SOURCE + ' -s ' + module.params['secondarydnsserver'])
+    if module.params['primaryserver']:
+        if config['primarydnsserver'] != module.params['primaryserver']:
+            commands.append(SOURCE + ' -p ' + module.params['primaryserver'])
+    if module.params['secondaryserver']:
+        if config['secondarydnsserver'] != module.params['secondaryserver']:
+            commands.append(SOURCE + ' -s ' + module.params['secondaryserver'])
     if module.params['domainname']:
         if config['domainname'] != module.params['domainname']:
             commands.append(SOURCE + ' -d ' + module.params['domainname'])
@@ -93,33 +101,36 @@ def build_commands(module):
     if module.params['hostname']:
         if config['hostname'] != module.params['hostname']:
             commands.append(SOURCE + ' -h ' + module.params['hostname'])
-    if module.params['systemnamesync']:
-        if config['systemnamesync'] == "Disabled" and module.params['systemnamesync'] == True:
+    if module.params['systemnamesync'] is not None:
+        if config['systemnamesync'].lower() == "disabled" and module.params['systemnamesync'] is True:
             commands.append(SOURCE + ' -y enable')
-        elif config['systemnamesync'] == "Enabled" and module.params['systemnamesync'] == False:
+        elif config['systemnamesync'].lower() == "enabled" and module.params['systemnamesync'] is False:
             commands.append(SOURCE + ' -y disable')
-    if module.params['overridemanualdnssettings']:
-        if config['overridemanualdnssettings'] == "Disabled" and module.params['overridemanualdnssettings'] == True:
+    if module.params['overridemanual'] is not None:
+        if config['overridemanualdnssettings'].lower() == "disabled" and module.params['overridemanual'] is True:
             commands.append(SOURCE + ' -OM enable')
-        elif config['overridemanualdnssettings'] == "Enabled" and module.params['overridemanualdnssettings'] == False:
+        elif config['overridemanualdnssettings'].lower() == "enabled" and module.params['overridemanual'] is False:
             commands.append(SOURCE + ' -OM disable')
     return commands
+
 
 def main():
     """ main entry point for module execution
     """
     argument_spec = dict(
-        primarydnsserver=dict(type='str'),
-        secondarydnsserver=dict(type='str'),
+        primaryserver=dict(type='str'),
+        secondaryserver=dict(type='str'),
         domainname=dict(type='str'),
         domainnameipv6=dict(type='str'),
         hostname=dict(type='str'),
         systemnamesync=dict(type='bool'),
-        overridemanualdnssettings=dict(type='bool')
+        overridemanual=dict(type='bool')
     )
 
-    module = AnsibleModule(argument_spec=argument_spec,
-                           supports_check_mode=True)
+    module = AnsibleModule(
+        argument_spec=argument_spec,
+        supports_check_mode=True
+    )
 
     warnings = list()
 
