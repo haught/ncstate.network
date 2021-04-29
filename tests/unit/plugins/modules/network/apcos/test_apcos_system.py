@@ -39,19 +39,16 @@ class TestApcosSystemModule(TestApcosModule):
         self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.apcos.apcos_system.load_config')
         self.load_config = self.mock_load_config.start()
 
-
     def tearDown(self):
         super(TestApcosSystemModule, self).tearDown()
 
         self.mock_get_config.stop()
         self.mock_load_config.stop()
 
-
     def load_fixtures(self, commands=None):
         config_file = 'apcos_config_system.cfg'
         self.get_config.return_value = load_fixture(config_file)
         self.load_config.return_value = None
-
 
     def test_apcos_system_rename(self):
         set_module_args({'name': 'test'})
@@ -61,12 +58,10 @@ class TestApcosSystemModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_system_rename_unchanged(self):
         set_module_args({'name': 'apctest2-1'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_system_location_set(self):
         set_module_args({'location': 'test'})
@@ -76,12 +71,10 @@ class TestApcosSystemModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_system_location_set_unchanged(self):
         set_module_args({'location': 'Bldg1'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_system_motd_set(self):
         set_module_args({'motd': 'test'})
@@ -91,12 +84,10 @@ class TestApcosSystemModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_system_motd_set_unchanged(self):
         set_module_args({'motd': 'This is a TEST'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_system_hostsync_enable(self):
         set_module_args({'hostnamesync': True})
@@ -105,7 +96,6 @@ class TestApcosSystemModule(TestApcosModule):
             'system -s enable'
         ]
         self.assertEqual(result['commands'], expected_commands)
-
 
     def test_apcos_system_hostsync_unchanged(self):
         set_module_args({'hostnamesync': False})

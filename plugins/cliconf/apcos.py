@@ -31,9 +31,6 @@ description:
 
 import re
 import json
-import logging
-
-from itertools import chain
 
 from ansible.module_utils._text import to_bytes, to_text
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list
@@ -66,12 +63,11 @@ class Cliconf(CliconfBase):
 
         return device_info
 
-
     def get_config(self, source='date', flags=None):
-        if source not in (
-            'boot', 'cipher', 'console', 'date', 'dns', 'eapol', 'email', 'firewall',
-            'ftp', 'ntp', 'portspeed', 'prompt', 'radius', 'session', 'smtp', 'snmp',
-            'snmptrap', 'snmpv3', 'system', 'tcpip', 'tcpip6', 'user', 'userdflt', 'web'):
+        if source not in ('boot', 'cipher', 'console', 'date', 'dns', 'eapol',
+                          'email', 'firewall', 'ftp', 'ntp', 'portspeed', 'prompt',
+                          'radius', 'session', 'smtp', 'snmp', 'snmptrap', 'snmpv3',
+                          'system', 'tcpip', 'tcpip6', 'user', 'userdflt', 'web'):
             raise ValueError("fetching configuration from %s is not supported" % source)
         cmd = source
 

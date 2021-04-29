@@ -1,0 +1,6 @@
+pycrypto
+passlib
+pywinrm
+pytz
+pexpect
+tftpy

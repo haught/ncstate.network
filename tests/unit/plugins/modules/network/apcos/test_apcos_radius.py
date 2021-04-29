@@ -39,19 +39,16 @@ class TestApcosRadiusModule(TestApcosModule):
         self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.apcos.apcos_radius.load_config')
         self.load_config = self.mock_load_config.start()
 
-
     def tearDown(self):
         super(TestApcosRadiusModule, self).tearDown()
 
         self.mock_get_config.stop()
         self.mock_load_config.stop()
 
-
     def load_fixtures(self, commands=None):
         config_file = 'apcos_config_radius.cfg'
         self.get_config.return_value = load_fixture(config_file)
         self.load_config.return_value = None
-
 
     def test_apcos_radius_set_access(self):
         set_module_args({'access': 'radius'})
@@ -61,7 +58,6 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_set_access_both(self):
         set_module_args({'access': 'radiuslocal'})
         result = self.execute_module(changed=True)
@@ -70,12 +66,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_access_unchanged(self):
         set_module_args({'access': 'local'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_primaryserver(self):
         set_module_args({'primaryserver': '10.11.11.12'})
@@ -85,12 +79,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_primaryserver_unchanged(self):
         set_module_args({'primaryserver': '10.11.11.11'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_primarysecret_serverchange(self):
         set_module_args({'primarysecret': 'test123', 'primaryserver': '10.1.1.10'})
@@ -101,7 +93,6 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_primarysecret_forced(self):
         set_module_args({'primarysecret': 'test123', 'forcepwchange': True})
         result = self.execute_module(changed=True)
@@ -110,12 +101,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_primarysecret_not_forced(self):
         set_module_args({'primarysecret': 'test'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_primaryport(self):
         set_module_args({'primaryport': 1645})
@@ -125,12 +114,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_primaryport_unchanged(self):
         set_module_args({'primaryport': 1812})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_primarytimeout(self):
         set_module_args({'primarytimeout': 10})
@@ -140,12 +127,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_primarytimeout_unchanged(self):
         set_module_args({'primarytimeout': 30})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_secondaryserver(self):
         set_module_args({'secondaryserver': '10.11.11.14'})
@@ -155,12 +140,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_secondaryserver_unchanged(self):
         set_module_args({'secondaryserver': '0.0.0.0'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_secondarysecret_serverchange(self):
         set_module_args({'secondarysecret': 'test123', 'secondaryserver': '10.1.1.10'})
@@ -171,7 +154,6 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_secondarysecret_forced(self):
         set_module_args({'secondarysecret': 'test123', 'forcepwchange': True})
         result = self.execute_module(changed=True)
@@ -180,12 +162,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_secondarysecret_not_forced(self):
         set_module_args({'secondarysecret': 'test'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_secondaryport(self):
         set_module_args({'secondaryport': 1645})
@@ -195,12 +175,10 @@ class TestApcosRadiusModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_radius_secondaryport_unchanged(self):
         set_module_args({'secondaryport': 1812})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_radius_secondarytimeout(self):
         set_module_args({'secondarytimeout': 12})
@@ -209,7 +187,6 @@ class TestApcosRadiusModule(TestApcosModule):
             'radius -t2 12'
         ]
         self.assertEqual(result['commands'], expected_commands)
-
 
     def test_apcos_radius_secondarytimeout_unchanged(self):
         set_module_args({'secondarytimeout': 5})

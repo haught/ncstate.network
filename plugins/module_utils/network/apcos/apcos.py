@@ -32,7 +32,7 @@ __metaclass__ = type
 import json
 import re
 from ansible.module_utils._text import to_text
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list, ComplexList
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list
 from ansible.module_utils.connection import Connection
 
 
@@ -178,7 +178,7 @@ def parse_config_section(config, section, index=None, indexName="Index"):
     found_index = None
     section_values = []
     for line in config.split('\n'):
-        if found_section == True:
+        if found_section is True:
             if re.match(r'^\S', line):
                 break
             if re.match(r'^\s+(.+)', line):

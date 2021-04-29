@@ -39,19 +39,16 @@ class TestApcosSnmpModule(TestApcosModule):
         self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.apcos.apcos_snmp.load_config')
         self.load_config = self.mock_load_config.start()
 
-
     def tearDown(self):
         super(TestApcosSnmpModule, self).tearDown()
 
         self.mock_get_config.stop()
         self.mock_load_config.stop()
 
-
     def load_fixtures(self, commands=None):
         config_file = 'apcos_config_snmp.cfg'
         self.get_config.return_value = load_fixture(config_file)
         self.load_config.return_value = None
-
 
     def test_apcos_snmp_set_enable(self):
         set_module_args({'enable': True})
@@ -61,53 +58,46 @@ class TestApcosSnmpModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_snmp_enable_unchanged(self):
         set_module_args({'enable': False})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
 
-
     def test_apcos_snmp_set_community(self):
-        set_module_args({'index': 1,'community': 'public_test2'})
+        set_module_args({'index': 1, 'community': 'public_test2'})
         result = self.execute_module(changed=True)
         expected_commands = [
             'snmp -c1 public_test2'
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_snmp_community_unchanged(self):
-        set_module_args({'index': 1,'community': 'public_test'})
+        set_module_args({'index': 1, 'community': 'public_test'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
 
-
     def test_apcos_snmp_set_accesstype(self):
-        set_module_args({'index': 1,'accesstype': 'write'})
+        set_module_args({'index': 1, 'accesstype': 'write'})
         result = self.execute_module(changed=True)
         expected_commands = [
             'snmp -a1 write'
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_snmp_accesstype_unchanged(self):
-        set_module_args({'index': 1,'accesstype': 'read'})
+        set_module_args({'index': 1, 'accesstype': 'read'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
 
-
     def test_apcos_snmp_set_accessaddress(self):
-        set_module_args({'index': 1,'accessaddress': '10.11.12.14'})
+        set_module_args({'index': 1, 'accessaddress': '10.11.12.14'})
         result = self.execute_module(changed=True)
         expected_commands = [
             'snmp -n1 10.11.12.14'
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_snmp_accessaddress_unchanged(self):
-        set_module_args({'index': 1,'accessaddress': '10.11.12.13'})
+        set_module_args({'index': 1, 'accessaddress': '10.11.12.13'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)

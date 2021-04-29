@@ -33,6 +33,8 @@ options:
         and I(newline).Common answers are 'y' or "\\r" (carriage return,
         must be double quotes). See examples.
     required: true
+    type: list
+    elements: str
   wait_for:
     description:
       - List of conditions to evaluate against the output of the
@@ -40,6 +42,8 @@ options:
         before moving forward. If the conditional is not true
         within the configured number of retries, the task fails.
         See examples.
+    type: list
+    elements: str
   match:
     description:
       - The I(match) argument is used in conjunction with the
@@ -50,6 +54,7 @@ options:
         satisfied.
     default: all
     choices: ['any', 'all']
+    type: str
   retries:
     description:
       - Specifies the number of retries a command should by tried
@@ -57,6 +62,7 @@ options:
         target device every retry and evaluated against the
         I(wait_for) conditions.
     default: 10
+    type: int
   interval:
     description:
       - Configures the interval in seconds to wait between retries
@@ -64,6 +70,7 @@ options:
         conditions, the interval indicates how long to wait before
         trying the command again.
     default: 1
+    type: int
 '''
 
 EXAMPLES = """
@@ -156,9 +163,9 @@ def main():
     """main entry point for module execution
     """
     argument_spec = dict(
-        commands=dict(type='list', required=True),
+        commands=dict(type='list', elements='str', required=True),
 
-        wait_for=dict(type='list'),
+        wait_for=dict(type='list', elements='str'),
         match=dict(default='all', choices=['all', 'any']),
 
         retries=dict(default=10, type='int'),

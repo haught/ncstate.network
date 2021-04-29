@@ -39,19 +39,16 @@ class TestApcosNtpModule(TestApcosModule):
         self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.apcos.apcos_ntp.load_config')
         self.load_config = self.mock_load_config.start()
 
-
     def tearDown(self):
         super(TestApcosNtpModule, self).tearDown()
 
         self.mock_get_config.stop()
         self.mock_load_config.stop()
 
-
     def load_fixtures(self, commands=None):
         config_file = 'apcos_config_ntp.cfg'
         self.get_config.return_value = load_fixture(config_file)
         self.load_config.return_value = None
-
 
     def test_apcos_ntp_set_disable(self):
         set_module_args({'enable': False})
@@ -61,12 +58,10 @@ class TestApcosNtpModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_ntp_enable_unchanged(self):
         set_module_args({'enable': True})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_ntp_primaryserver(self):
         set_module_args({'primaryserver': '10.10.10.11'})
@@ -76,12 +71,10 @@ class TestApcosNtpModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_ntp_primaryserve_unchanged(self):
         set_module_args({'primaryserver': '10.10.10.10'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_ntp_secondaryserver(self):
         set_module_args({'secondaryserver': '10.22.10.11'})
@@ -91,12 +84,10 @@ class TestApcosNtpModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_ntp_secondaryserver_unchanged(self):
         set_module_args({'secondaryserver': '10.22.10.10'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_ntp_overridemanual_disable(self):
         set_module_args({'overridemanual': False})
@@ -105,7 +96,6 @@ class TestApcosNtpModule(TestApcosModule):
             'ntp -OM disable'
         ]
         self.assertEqual(result['commands'], expected_commands)
-
 
     def test_apcos_ntp_overridemanual_unchanged(self):
         set_module_args({'overridemanual': True})

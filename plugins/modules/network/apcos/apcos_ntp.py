@@ -59,15 +59,12 @@ commands:
   sample:
     - ntp -a ntplocal
 """
-import re
-import json
+
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.config import CustomNetworkConfig
 from ansible_collections.ncstate.network.plugins.module_utils.network.apcos.apcos import (
     load_config,
     get_config,
     parse_config,
-    parse_config_section,
 )
 
 SOURCE = "ntp"

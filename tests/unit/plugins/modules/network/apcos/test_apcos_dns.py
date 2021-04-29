@@ -39,19 +39,16 @@ class TestApcosDnsModule(TestApcosModule):
         self.mock_load_config = patch('ansible_collections.ncstate.network.plugins.modules.network.apcos.apcos_dns.load_config')
         self.load_config = self.mock_load_config.start()
 
-
     def tearDown(self):
         super(TestApcosDnsModule, self).tearDown()
 
         self.mock_get_config.stop()
         self.mock_load_config.stop()
 
-
     def load_fixtures(self, commands=None):
         config_file = 'apcos_config_dns.cfg'
         self.get_config.return_value = load_fixture(config_file)
         self.load_config.return_value = None
-
 
     def test_apcos_dns_primaryserver_set(self):
         set_module_args({'primaryserver': '8.8.8.8'})
@@ -61,12 +58,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_primaryserver_unchanged(self):
         set_module_args({'primaryserver': '1.1.1.1'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_secondaryserver_set(self):
         set_module_args({'secondaryserver': '1.0.0.1'})
@@ -76,12 +71,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_secondaryserver_unchanged(self):
         set_module_args({'secondaryserver': '8.8.4.4'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_domainname_set(self):
         set_module_args({'domainname': 'example.com'})
@@ -91,12 +84,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_domainname_unchanged(self):
         set_module_args({'domainname': 'example.net'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_domainnameipv6_set(self):
         set_module_args({'domainnameipv6': 'example.com'})
@@ -106,12 +97,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_domainnameipv6_unchanged(self):
         set_module_args({'domainnameipv6': 'example.net'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_hostname_set(self):
         set_module_args({'hostname': 'test'})
@@ -121,12 +110,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_hostname_unchanged(self):
         set_module_args({'hostname': 'apctest2-1'})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_systemnamesync_enable(self):
         set_module_args({'systemnamesync': True})
@@ -136,12 +123,10 @@ class TestApcosDnsModule(TestApcosModule):
         ]
         self.assertEqual(result['commands'], expected_commands)
 
-
     def test_apcos_dns_systemnamesync_unchanged(self):
         set_module_args({'systemnamesync': False})
         result = self.execute_module(changed=False)
         self.assertEqual(result['changed'], False)
-
 
     def test_apcos_dns_overridemanual_disable(self):
         set_module_args({'overridemanual': False})
@@ -150,7 +135,6 @@ class TestApcosDnsModule(TestApcosModule):
             'dns -OM disable'
         ]
         self.assertEqual(result['commands'], expected_commands)
-
 
     def test_apcos_dns_overridemanual_unchanged(self):
         set_module_args({'overridemanual': True})
