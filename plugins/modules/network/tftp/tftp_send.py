@@ -66,14 +66,19 @@ stdout_lines:
   sample: [['...', '...'], ['...'], ['...']]
 """
 
-from tftpy import TftpClient
-import io
+try:
+    from tftpy import TftpClient
+    HAS_TFTPY = True
+except ImportError:
+    HAS_TFTPY = False
 
+import io
 from ansible.module_utils._text import to_native, to_text
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule, missing_required_lib
 
 
 def main():
+
     spec = dict(
         host=dict(type='str', required=True),
         port=dict(default=69, type='int'),
@@ -86,6 +91,11 @@ def main():
         argument_spec=spec,
         supports_check_mode=True
     )
+
+    if not HAS_TFTPY:
+        module.fail_json(
+            msg=missing_required_lib("tftpy"),
+        )
 
     warnings = list()
     result = {'changed': False, 'warnings': warnings}

@@ -6,6 +6,8 @@ This is a collection of modules for NC State University that have not been submi
 ## Modules
 [ncstate.network.tftp_send](plugins/modules/network/tftp/tftp_send.py) - A simple module to take given text and send it as a file to a TFTP server. It can be used to send 'show run' output to backup server when device tftp is not available.
 
+[ncstate.network.sftp_send](plugins/modules/network/sftp/sftp_send.py) - A simple module to take given text and send it as a file to a SFTP server. It can be used to send 'show run' output to backup server using sftp.
+
 [ncstate.network.edgeswitch_command](plugins/modules/network/edgeswitch/edgeswitch_command.py) - A module to run commands on Ubiquiti EdgeSwitch devices.
 
 [ncstate.network.edgeswitch_config](plugins/modules/network/edgeswitch/edgeswitch_config.py) - A module to configure Ubiquiti EdgeSwitch devices.
