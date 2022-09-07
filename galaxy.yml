@@ -14,3 +14,5 @@ repository: https://github.com/haught/ncstate.network
 documentation: https://github.com/haught/ncstate.network
 homepage: https://github.com/haught/ncstate.network
 issues: https://github.com/haught/ncstate.network/issues
+build_ignore: ['.venv', '.vscode', '*.code-workspace', '*.tar.gz', 'tests/output/*']
+
