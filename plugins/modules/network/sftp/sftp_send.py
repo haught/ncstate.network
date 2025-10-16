@@ -21,7 +21,7 @@ description:
   - The module sends from wherever the playbook is run.
 
 requirements:
-  - python pysftp (pysftp)
+  - python fabric (fabric)
 
 options:
   host:
@@ -81,10 +81,10 @@ stdout_lines:
 """
 
 try:
-    import pysftp
-    HAS_PYSFTP = True
+    from fabric import Connection
+    HAS_FABRIC = True
 except ImportError:
-    HAS_PYSFTP = False
+    HAS_FABRIC = False
 
 from ansible.module_utils._text import to_native, to_text
 from ansible.module_utils.basic import AnsibleModule, missing_required_lib
@@ -106,9 +106,9 @@ def main():
         supports_check_mode=True
     )
 
-    if not HAS_PYSFTP:
+    if not HAS_FABRIC:
         module.fail_json(
-            msg=missing_required_lib("pysftp"),
+            msg=missing_required_lib("fabric"),
         )
 
     warnings = list()
@@ -122,23 +122,26 @@ def main():
         module.exit_json(**result)
 
     try:
-        cnopts = pysftp.CnOpts()
-        cnopts.hostkeys = None
-        with pysftp.Connection(
-                host=module.params['host'],
-                username=module.params['username'],
-                password=module.params['password'],
-                port=module.params['port'],
-                cnopts=cnopts
-        ) as sftp:
-            try:
-                f = sftp.open(module.params['dest_filename'], 'wb')
-                f.write(to_text(module.params['src']))
-                f.close()
-                sftp.close()
+        conn = Connection(
+            host=module.params['host'],
+            user=module.params['username'],
+            port=module.params['port'],
+            connect_kwargs={
+                'password': module.params['password'],
+                'look_for_keys': False,
+                'allow_agent': False,
+            },
+            connect_timeout=30
+        )
+        try:
+            with conn.sftp() as sftp:
+                with sftp.file(module.params['dest_filename'], 'wb') as f:
+                    f.write(to_text(module.params['src']).encode('utf-8'))
                 responses.append('SFTP client uploaded to %s' % to_native(module.params['dest_filename']))
-            except Exception as err:
-                module.fail_json(msg='SFTP upload failed: %s' % to_native(err), **result)
+        except Exception as err:
+            module.fail_json(msg='SFTP upload failed: %s' % to_native(err), **result)
+        finally:
+            conn.close()
     except Exception as err:
         module.fail_json(msg='Client error occured: %s' % to_native(err), **result)
 
